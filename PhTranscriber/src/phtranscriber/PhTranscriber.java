@@ -19,12 +19,19 @@ public class PhTranscriber extends Application {
     
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("FXMLDocument.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("TranscriberScreen.fxml"));
+        Parent root = loader.load();
+        TranscriberScreenController controller = loader.getController();
+        
+        //Parent root = FXMLLoader.load(getClass().getResource("Grid.fxml"));
         
         Scene scene = new Scene(root);
         
         stage.setScene(scene);
+        stage.setTitle("Pah9qdCheckers");
         stage.show();
+        
+        controller.ready(stage);
     }
 
     /**
