@@ -15,10 +15,12 @@ import javafx.beans.Observable;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
@@ -89,17 +91,32 @@ public class TranscriberScreenController implements Initializable {
         // Set Media Player
         Media media = new Media(new File(transcription.getAudioPath()).toURI().toString());
         mediaPlayer = new MediaPlayer(media);
-        mediaPlayer.setAutoPlay(false);
-        titleText.setText(transcription.getAudioPath());
+        mediaPlayer.setOnReady(() -> {
+            mediaPlayer.setAutoPlay(true);
+            timeSlider.setMin(0.0);
+            Duration test = media.getDuration();
+            timeSlider.setMax(media.getDuration().toMillis());
+            titleText.setText(transcription.getAudioPath());
+        });
+        
         
         //Set slider listeners
+        timeSlider.setOnMousePressed((MouseEvent me) -> {
+            mediaPlayer.pause();
+        });
+        
+        timeSlider.setOnMouseReleased((MouseEvent me) ->  {
+            mediaPlayer.play();
+        });
+        
         timeSlider.valueProperty().addListener(new InvalidationListener() {
             public void invalidated(Observable ov) {
                 if(timeSlider.isValueChanging()) {
-                    mediaPlayer.seek(mediaPlayer.getMedia().getDuration().multiply(timeSlider.getValue() / 100.0));
+                    mediaPlayer.seek(new Duration(timeSlider.getValue()));
                     updateMediaPlayerValues();
                 }
             }
+            
         });
         
         mediaPlayer.currentTimeProperty().addListener(new ChangeListener<Duration>() {
@@ -111,8 +128,7 @@ public class TranscriberScreenController implements Initializable {
     }
     
     private void updateMediaPlayerValues() {
-        Duration currentTime = mediaPlayer.getCurrentTime();
-        timeSlider.setValue(currentTime.divide(mediaPlayer.getMedia().getDuration().toMillis()).toMillis() * 100.0);
+        timeSlider.setValue(mediaPlayer.getCurrentTime().toMillis());
     }
     
     @FXML
@@ -127,17 +143,20 @@ public class TranscriberScreenController implements Initializable {
     
     @FXML
     private void HandlePlayBtn(ActionEvent event) {
-        mediaPlayer.play();
+        if(mediaPlayer != null) 
+            mediaPlayer.play();
     }
     
     @FXML
     private void HandlePauseBtn(ActionEvent event) {
-        mediaPlayer.pause();
+        if(mediaPlayer != null)
+            mediaPlayer.pause();
     }
     
     @FXML
     private void HandleStopBtn(ActionEvent event) {
-        mediaPlayer.stop();
+        if(mediaPlayer != null)
+            mediaPlayer.stop();
     }
     
 }

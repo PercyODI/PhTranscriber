@@ -28,7 +28,7 @@ public class PhTranscriber extends Application {
         Scene scene = new Scene(root);
         
         stage.setScene(scene);
-        stage.setTitle("Pah9qdCheckers");
+        stage.setTitle("PhTranscriber");
         stage.show();
         
         controller.ready(stage);
